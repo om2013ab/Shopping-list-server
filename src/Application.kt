@@ -1,5 +1,6 @@
 package com.omarahmed
 
+import com.omarahmed.di.mainModule
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.request.*
@@ -11,12 +12,19 @@ import io.ktor.features.*
 import org.slf4j.event.*
 import io.ktor.auth.*
 import io.ktor.gson.*
+import org.koin.ktor.ext.Koin
+import org.koin.ktor.ext.Koin.Feature
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
-fun Application.module(testing: Boolean = false) {
+fun Application.module() {
+
+    install(Koin){
+        modules(mainModule)
+    }
+
     install(CallLogging) {
         level = Level.INFO
         filter { call -> call.request.path().startsWith("/") }

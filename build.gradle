@@ -28,6 +28,12 @@ repositories {
     maven { url 'https://kotlin.bintray.com/ktor' }
 }
 
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all{
+    kotlinOptions{
+        jvmTarget = "1.8"
+    }
+}
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "io.ktor:ktor-server-netty:$ktor_version"
@@ -38,4 +44,14 @@ dependencies {
     implementation "io.ktor:ktor-auth-jwt:$ktor_version"
     implementation "io.ktor:ktor-gson:$ktor_version"
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
+
+    //KMongo
+    implementation("org.litote.kmongo:kmongo:4.2.8")
+    implementation 'org.litote.kmongo:kmongo-coroutine:4.2.8'
+
+    //Koin
+    implementation("io.insert-koin:koin-core:3.1.2")
+    testImplementation("io.insert-koin:koin-test:3.1.2")
+    implementation("io.insert-koin:koin-ktor:3.1.2")
+    implementation("io.insert-koin:koin-logger-slf4j:3.1.2")
 }
