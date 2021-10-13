@@ -9,12 +9,11 @@ class ShoppingItemsRepoImpl(
     private val items = db.getCollection<ShoppingItem>()
 
     override suspend fun addNewItem(item: ShoppingItem): Boolean {
-        TODO("Not yet implemented")
-
+        return items.insertOne(item).wasAcknowledged()
     }
 
     override suspend fun getItems(): List<ShoppingItem> {
-        TODO("Not yet implemented")
+        return items.find().toList()
     }
 
 }

@@ -1,6 +1,8 @@
 package com.omarahmed
 
 import com.omarahmed.di.mainModule
+import com.omarahmed.routes.addNewItemRoute
+import com.omarahmed.services.ShoppingItemService
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.request.*
@@ -14,6 +16,7 @@ import io.ktor.auth.*
 import io.ktor.gson.*
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.Koin.Feature
+import org.koin.ktor.ext.inject
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -44,7 +47,9 @@ fun Application.module() {
     }
 
     install(Routing){
-        static("/static") {
+        val shoppingItemService: ShoppingItemService by inject()
+        addNewItemRoute(shoppingItemService)
+        static {
             resources("static")
         }
     }
