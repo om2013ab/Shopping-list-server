@@ -29,4 +29,8 @@ class ShoppingItemService(
     ): Boolean{
         return shoppingItemsRepo.updateItem(itemId,request,newImageUrl)
     }
+
+    suspend fun deleteItem(itemId: String): Boolean {
+        return shoppingItemsRepo.deleteItem(itemId)
+    }
 }

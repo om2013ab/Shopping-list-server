@@ -14,6 +14,7 @@ import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
+import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.http.content.*
 import io.ktor.request.*
@@ -88,7 +89,7 @@ fun Route.updateItemRoute(shoppingItemService: ShoppingItemService) {
 
     put("/api/item/update") {
         val itemId = call.parameters[QueryParams.PARAM_ITEM_ID] ?: kotlin.run {
-            call.respond(BadRequest)
+            call.respond(NotFound)
             return@put
         }
         val multiPart = call.receiveMultipart()
@@ -129,6 +130,22 @@ fun Route.updateItemRoute(shoppingItemService: ShoppingItemService) {
         } ?: kotlin.run {
             call.respond(BadRequest)
             return@put
+        }
+
+    }
+}
+
+fun Route.deleteItemRoute(shoppingItemService: ShoppingItemService){
+    delete("/api/item/remove") {
+        val itemId = call.parameters[QueryParams.PARAM_ITEM_ID] ?: kotlin.run {
+            call.respond(NotFound)
+            return@delete
+        }
+        val deleteAcknowledge = shoppingItemService.deleteItem(itemId)
+        if (deleteAcknowledge) {
+            call.respond(OK,SimpleResponse(true, "Successfully deleted the item: $itemId"))
+        } else {
+            call.respond(OK, SimpleResponse(false,"Something went wrong"))
         }
 
     }

@@ -2,6 +2,7 @@ package com.omarahmed
 
 import com.omarahmed.di.mainModule
 import com.omarahmed.routes.addNewItemRoute
+import com.omarahmed.routes.deleteItemRoute
 import com.omarahmed.routes.getAllItemsRoute
 import com.omarahmed.routes.updateItemRoute
 import com.omarahmed.services.ShoppingItemService
@@ -53,6 +54,7 @@ fun Application.module() {
         addNewItemRoute(shoppingItemService)
         getAllItemsRoute(shoppingItemService)
         updateItemRoute(shoppingItemService)
+        deleteItemRoute(shoppingItemService)
         static {
             resources("static")
         }

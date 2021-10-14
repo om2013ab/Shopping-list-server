@@ -18,4 +18,6 @@ interface ShoppingItemsRepo {
         updateItemRequest: UpdateItemRequest,
         newImageUrl: String
     ): Boolean
+
+    suspend fun deleteItem(itemId: String): Boolean
 }

@@ -41,4 +41,8 @@ class ShoppingItemsRepoImpl(
             )
         ).wasAcknowledged()
     }
+
+    override suspend fun deleteItem(itemId: String): Boolean {
+        return items.deleteOneById(itemId).wasAcknowledged()
+    }
 }
