@@ -12,8 +12,15 @@ class ShoppingItemsRepoImpl(
         return items.insertOne(item).wasAcknowledged()
     }
 
-    override suspend fun getItems(): List<ShoppingItem> {
-        return items.find().toList()
+    override suspend fun getItems(
+        page: Int,
+        pageSize: Int
+    ): List<ShoppingItem> {
+        return items.find()
+            .skip(page * pageSize)
+            .limit(pageSize)
+            .descendingSort(ShoppingItem::name)
+            .toList()
     }
 
 }

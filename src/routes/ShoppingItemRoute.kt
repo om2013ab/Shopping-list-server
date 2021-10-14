@@ -4,8 +4,10 @@ import com.google.gson.Gson
 import com.omarahmed.data.requests.AddItemRequest
 import com.omarahmed.data.responses.SimpleResponse
 import com.omarahmed.services.ShoppingItemService
+import com.omarahmed.util.Constants
 import com.omarahmed.util.Constants.BASE_URL
 import com.omarahmed.util.Constants.ITEMS_PICTURE_PATH
+import com.omarahmed.util.QueryParams
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
@@ -67,5 +69,14 @@ fun Routing.addNewItemRoute(
             call.respond(BadRequest)
             return@post
         }
+    }
+}
+
+fun Route.getAllItemsRoute(shoppingItemService: ShoppingItemService){
+    get("/api/items/get") {
+        val page = call.parameters[QueryParams.PARAM_PAGE]?.toInt() ?: 0
+        val pageSize = call.parameters[QueryParams.PARAM_PAGE_SIZE]?.toInt() ?: Constants.DEFAULT_PAGE_SIZE
+        val items = shoppingItemService.getItems(page,pageSize)
+        call.respond(OK,items)
     }
 }

@@ -2,6 +2,7 @@ package com.omarahmed
 
 import com.omarahmed.di.mainModule
 import com.omarahmed.routes.addNewItemRoute
+import com.omarahmed.routes.getAllItemsRoute
 import com.omarahmed.services.ShoppingItemService
 import io.ktor.application.*
 import io.ktor.response.*
@@ -49,6 +50,7 @@ fun Application.module() {
     install(Routing){
         val shoppingItemService: ShoppingItemService by inject()
         addNewItemRoute(shoppingItemService)
+        getAllItemsRoute(shoppingItemService)
         static {
             resources("static")
         }

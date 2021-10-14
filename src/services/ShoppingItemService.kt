@@ -17,7 +17,7 @@ class ShoppingItemService(
         )
     }
 
-    suspend fun getItems(): List<ShoppingItem> {
-        return shoppingItemsRepo.getItems()
+    suspend fun getItems(page: Int, pageSize: Int): List<ShoppingItem> {
+        return shoppingItemsRepo.getItems(page, pageSize)
     }
 }
