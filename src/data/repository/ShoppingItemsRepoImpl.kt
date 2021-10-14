@@ -1,7 +1,11 @@
 package com.omarahmed.data.repository
 
 import com.omarahmed.data.models.ShoppingItem
+import com.omarahmed.data.requests.UpdateItemRequest
+import org.litote.kmongo.SetTo
 import org.litote.kmongo.coroutine.CoroutineDatabase
+import org.litote.kmongo.eq
+import org.litote.kmongo.set
 
 class ShoppingItemsRepoImpl(
     db: CoroutineDatabase
@@ -23,4 +27,18 @@ class ShoppingItemsRepoImpl(
             .toList()
     }
 
+    override suspend fun updateItem(
+        itemId: String,
+        updateItemRequest: UpdateItemRequest,
+        newImageUrl: String
+    ): Boolean {
+        return items.updateOne(
+            ShoppingItem::id eq itemId,
+            set(
+                SetTo(ShoppingItem::name, updateItemRequest.newName),
+                SetTo(ShoppingItem::imageUrl, newImageUrl),
+                SetTo(ShoppingItem::isAddedToCart, updateItemRequest.isAddedToCart)
+            )
+        ).wasAcknowledged()
+    }
 }

@@ -1,6 +1,7 @@
 package com.omarahmed.data.repository
 
 import com.omarahmed.data.models.ShoppingItem
+import com.omarahmed.data.requests.UpdateItemRequest
 import com.omarahmed.util.Constants
 
 interface ShoppingItemsRepo {
@@ -11,4 +12,10 @@ interface ShoppingItemsRepo {
         page: Int = 0,
         pageSize: Int = Constants.DEFAULT_PAGE_SIZE
     ): List<ShoppingItem>
+
+    suspend fun updateItem(
+        itemId: String,
+        updateItemRequest: UpdateItemRequest,
+        newImageUrl: String
+    ): Boolean
 }

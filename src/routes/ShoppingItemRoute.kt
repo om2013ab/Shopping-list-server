@@ -2,12 +2,14 @@ package com.omarahmed.routes
 
 import com.google.gson.Gson
 import com.omarahmed.data.requests.AddItemRequest
+import com.omarahmed.data.requests.UpdateItemRequest
 import com.omarahmed.data.responses.SimpleResponse
 import com.omarahmed.services.ShoppingItemService
 import com.omarahmed.util.Constants
 import com.omarahmed.util.Constants.BASE_URL
 import com.omarahmed.util.Constants.ITEMS_PICTURE_PATH
 import com.omarahmed.util.QueryParams
+import com.omarahmed.util.saveFile
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
@@ -78,5 +80,56 @@ fun Route.getAllItemsRoute(shoppingItemService: ShoppingItemService){
         val pageSize = call.parameters[QueryParams.PARAM_PAGE_SIZE]?.toInt() ?: Constants.DEFAULT_PAGE_SIZE
         val items = shoppingItemService.getItems(page,pageSize)
         call.respond(OK,items)
+    }
+}
+
+fun Route.updateItemRoute(shoppingItemService: ShoppingItemService) {
+    val gson: Gson by inject()
+
+    put("/api/item/update") {
+        val itemId = call.parameters[QueryParams.PARAM_ITEM_ID] ?: kotlin.run {
+            call.respond(BadRequest)
+            return@put
+        }
+        val multiPart = call.receiveMultipart()
+        var updateItemRequest: UpdateItemRequest? = null
+        var fileName: String? = null
+
+        multiPart.forEachPart { partData ->
+            when(partData){
+                is PartData.FormItem -> {
+                    if (partData.name == "updating_item_data"){
+                        updateItemRequest = gson.fromJson(
+                            partData.value,
+                            UpdateItemRequest::class.java
+                        )
+                    }
+                }
+                is PartData.FileItem -> {
+                    fileName = partData.saveFile(ITEMS_PICTURE_PATH)
+                }
+                else -> Unit
+            }
+            partData.dispose
+        }
+
+        updateItemRequest?.let {
+            val itemImageUrl = "${BASE_URL}items_pictures/$fileName"
+            val updateItemAcknowledge = shoppingItemService.updateItem(
+                itemId = itemId,
+                request = it,
+                newImageUrl = itemImageUrl
+            )
+            if (updateItemAcknowledge){
+                call.respond(OK,SimpleResponse(true,"Successfully updated item!"))
+            } else {
+                File("$ITEMS_PICTURE_PATH$fileName").delete()
+                call.respond(InternalServerError)
+            }
+        } ?: kotlin.run {
+            call.respond(BadRequest)
+            return@put
+        }
+
     }
 }
