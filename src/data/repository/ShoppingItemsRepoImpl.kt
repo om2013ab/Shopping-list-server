@@ -5,6 +5,7 @@ import com.omarahmed.data.requests.UpdateItemRequest
 import org.litote.kmongo.SetTo
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
+import org.litote.kmongo.regex
 import org.litote.kmongo.set
 
 class ShoppingItemsRepoImpl(
@@ -23,7 +24,7 @@ class ShoppingItemsRepoImpl(
         return items.find()
             .skip(page * pageSize)
             .limit(pageSize)
-            .descendingSort(ShoppingItem::name)
+            .ascendingSort(ShoppingItem::name)
             .toList()
     }
 
@@ -44,5 +45,13 @@ class ShoppingItemsRepoImpl(
 
     override suspend fun deleteItem(itemId: String): Boolean {
         return items.deleteOneById(itemId).wasAcknowledged()
+    }
+
+    override suspend fun searchForItem(query: String): List<ShoppingItem> {
+        return items.find(
+            ShoppingItem::name regex Regex("(?i).*$query.*")
+        )
+            .descendingSort(ShoppingItem::name)
+            .toList()
     }
 }

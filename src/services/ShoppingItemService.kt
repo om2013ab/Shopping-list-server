@@ -33,4 +33,8 @@ class ShoppingItemService(
     suspend fun deleteItem(itemId: String): Boolean {
         return shoppingItemsRepo.deleteItem(itemId)
     }
+
+    suspend fun searchForItem(query: String): List<ShoppingItem>{
+        return shoppingItemsRepo.searchForItem(query)
+    }
 }

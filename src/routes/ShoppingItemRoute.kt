@@ -150,3 +150,15 @@ fun Route.deleteItemRoute(shoppingItemService: ShoppingItemService){
 
     }
 }
+
+fun Route.searchForItemRoute(shoppingItemService: ShoppingItemService){
+    get("/api/items/search") {
+        val query = call.parameters[QueryParams.PARAM_SEARCH_QUERY]
+        if (query == null || query.isBlank()){
+            call.respond(BadRequest)
+            return@get
+        }
+        val searchResult = shoppingItemService.searchForItem(query)
+        call.respond(OK,searchResult)
+    }
+}

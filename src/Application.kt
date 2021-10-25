@@ -1,10 +1,7 @@
 package com.omarahmed
 
 import com.omarahmed.di.mainModule
-import com.omarahmed.routes.addNewItemRoute
-import com.omarahmed.routes.deleteItemRoute
-import com.omarahmed.routes.getAllItemsRoute
-import com.omarahmed.routes.updateItemRoute
+import com.omarahmed.routes.*
 import com.omarahmed.services.ShoppingItemService
 import io.ktor.application.*
 import io.ktor.response.*
@@ -55,6 +52,7 @@ fun Application.module() {
         getAllItemsRoute(shoppingItemService)
         updateItemRoute(shoppingItemService)
         deleteItemRoute(shoppingItemService)
+        searchForItemRoute(shoppingItemService)
         static {
             resources("static")
         }
