@@ -14,6 +14,7 @@ import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
+import io.ktor.http.HttpStatusCode.Companion.NoContent
 import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.http.content.*
@@ -154,11 +155,10 @@ fun Route.deleteItemRoute(shoppingItemService: ShoppingItemService){
 fun Route.searchForItemRoute(shoppingItemService: ShoppingItemService){
     get("/api/items/search") {
         val query = call.parameters[QueryParams.PARAM_SEARCH_QUERY]
-        if (query == null || query.isBlank()){
-            call.respond(BadRequest)
-            return@get
+        query?.let {
+            val searchResult = shoppingItemService.searchForItem(it)
+            call.respond(OK,searchResult)
         }
-        val searchResult = shoppingItemService.searchForItem(query)
-        call.respond(OK,searchResult)
+
     }
 }
