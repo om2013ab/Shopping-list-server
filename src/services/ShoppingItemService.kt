@@ -9,7 +9,7 @@ class ShoppingItemService(
     private val shoppingItemsRepo: ShoppingItemsRepo
 ) {
 
-    suspend fun addNewItem(request: AddItemRequest, itemImageUrl: String): Boolean {
+    suspend fun addNewItem(request: AddItemRequest, itemImageUrl: String?): Boolean {
         return shoppingItemsRepo.addNewItem(
             ShoppingItem(
                 name = request.itemName,
@@ -25,9 +25,8 @@ class ShoppingItemService(
     suspend fun updateItem(
         itemId: String,
         request: UpdateItemRequest,
-        newImageUrl: String
     ): Boolean{
-        return shoppingItemsRepo.updateItem(itemId,request,newImageUrl)
+        return shoppingItemsRepo.updateItem(itemId,request)
     }
 
     suspend fun deleteItem(itemId: String): Boolean {

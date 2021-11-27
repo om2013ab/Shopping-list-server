@@ -30,16 +30,11 @@ class ShoppingItemsRepoImpl(
 
     override suspend fun updateItem(
         itemId: String,
-        updateItemRequest: UpdateItemRequest,
-        newImageUrl: String
+        updateItemRequest: UpdateItemRequest
     ): Boolean {
         return items.updateOne(
             ShoppingItem::id eq itemId,
-            set(
-                SetTo(ShoppingItem::name, updateItemRequest.newName),
-                SetTo(ShoppingItem::imageUrl, newImageUrl),
-                SetTo(ShoppingItem::isAddedToCart, updateItemRequest.isAddedToCart)
-            )
+            set(SetTo(ShoppingItem::isAddedToCart, updateItemRequest.isAddedToCart))
         ).wasAcknowledged()
     }
 

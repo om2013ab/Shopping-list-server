@@ -35,14 +35,14 @@ fun Routing.addNewItemRoute(
         var fileName: String? = null
 
         multiPart.forEachPart { partData ->
-            when(partData){
+            when (partData) {
                 is PartData.FormItem -> {
-                   if (partData.name == "adding_item_data"){
-                       addItemRequest = gson.fromJson(
-                           partData.value,
-                           AddItemRequest::class.java
-                       )
-                   }
+                    if (partData.name == "adding_item_data") {
+                        addItemRequest = gson.fromJson(
+                            partData.value,
+                            AddItemRequest::class.java
+                        )
+                    }
                 }
                 is PartData.FileItem -> {
                     val fileBytes = partData.streamProvider().readBytes()
@@ -63,8 +63,8 @@ fun Routing.addNewItemRoute(
                 request = it,
                 itemImageUrl = itemImageUrl
             )
-            if (addedItemAcknowledge){
-                call.respond(OK,SimpleResponse(true,"Successfully added new item!"))
+            if (addedItemAcknowledge) {
+                call.respond(OK, SimpleResponse(true, "Successfully added new item!"))
             } else {
                 File("$ITEMS_PICTURE_PATH$fileName").delete()
                 call.respond(InternalServerError)
@@ -76,67 +76,35 @@ fun Routing.addNewItemRoute(
     }
 }
 
-fun Route.getAllItemsRoute(shoppingItemService: ShoppingItemService){
+fun Route.getAllItemsRoute(shoppingItemService: ShoppingItemService) {
     get("/api/items/get") {
         val page = call.parameters[QueryParams.PARAM_PAGE]?.toInt() ?: 0
         val pageSize = call.parameters[QueryParams.PARAM_PAGE_SIZE]?.toInt() ?: Constants.DEFAULT_PAGE_SIZE
-        val items = shoppingItemService.getItems(page,pageSize)
-        call.respond(OK,items)
+        val items = shoppingItemService.getItems(page, pageSize)
+        call.respond(OK, items)
     }
 }
 
 fun Route.updateItemRoute(shoppingItemService: ShoppingItemService) {
-    val gson: Gson by inject()
-
     put("/api/item/update") {
         val itemId = call.parameters[QueryParams.PARAM_ITEM_ID] ?: kotlin.run {
             call.respond(NotFound)
             return@put
         }
-        val multiPart = call.receiveMultipart()
-        var updateItemRequest: UpdateItemRequest? = null
-        var fileName: String? = null
-
-        multiPart.forEachPart { partData ->
-            when(partData){
-                is PartData.FormItem -> {
-                    if (partData.name == "updating_item_data"){
-                        updateItemRequest = gson.fromJson(
-                            partData.value,
-                            UpdateItemRequest::class.java
-                        )
-                    }
-                }
-                is PartData.FileItem -> {
-                    fileName = partData.saveFile(ITEMS_PICTURE_PATH)
-                }
-                else -> Unit
-            }
-            partData.dispose
-        }
-
-        updateItemRequest?.let {
-            val itemImageUrl = "${BASE_URL}items_pictures/$fileName"
-            val updateItemAcknowledge = shoppingItemService.updateItem(
-                itemId = itemId,
-                request = it,
-                newImageUrl = itemImageUrl
-            )
-            if (updateItemAcknowledge){
-                call.respond(OK,SimpleResponse(true,"Successfully updated item!"))
+        val updatedItem = call.receiveOrNull<UpdateItemRequest>()
+        if (updatedItem != null){
+            val isUpdateAcknowledge = shoppingItemService.updateItem(itemId, updatedItem)
+            if (isUpdateAcknowledge) {
+                call.respond(OK, SimpleResponse(true,"Successfully updated the item"))
             } else {
-                File("$ITEMS_PICTURE_PATH$fileName").delete()
                 call.respond(InternalServerError)
             }
-        } ?: kotlin.run {
-            call.respond(BadRequest)
-            return@put
         }
-
     }
+
 }
 
-fun Route.deleteItemRoute(shoppingItemService: ShoppingItemService){
+fun Route.deleteItemRoute(shoppingItemService: ShoppingItemService) {
     delete("/api/item/remove") {
         val itemId = call.parameters[QueryParams.PARAM_ITEM_ID] ?: kotlin.run {
             call.respond(NotFound)
@@ -144,20 +112,20 @@ fun Route.deleteItemRoute(shoppingItemService: ShoppingItemService){
         }
         val deleteAcknowledge = shoppingItemService.deleteItem(itemId)
         if (deleteAcknowledge) {
-            call.respond(OK,SimpleResponse(true, "Successfully deleted the item: $itemId"))
+            call.respond(OK, SimpleResponse(true, "Successfully deleted the item: $itemId"))
         } else {
-            call.respond(OK, SimpleResponse(false,"Something went wrong"))
+            call.respond(OK, SimpleResponse(false, "Something went wrong"))
         }
 
     }
 }
 
-fun Route.searchForItemRoute(shoppingItemService: ShoppingItemService){
+fun Route.searchForItemRoute(shoppingItemService: ShoppingItemService) {
     get("/api/items/search") {
         val query = call.parameters[QueryParams.PARAM_SEARCH_QUERY]
         query?.let {
             val searchResult = shoppingItemService.searchForItem(it)
-            call.respond(OK,searchResult)
+            call.respond(OK, searchResult)
         }
 
     }
