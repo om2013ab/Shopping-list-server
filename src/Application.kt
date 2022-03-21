@@ -1,8 +1,11 @@
 package com.omarahmed
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
 import com.omarahmed.di.mainModule
 import com.omarahmed.routes.*
 import com.omarahmed.services.ShoppingItemService
+import com.omarahmed.services.UserService
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.request.*
@@ -13,6 +16,7 @@ import io.ktor.http.content.*
 import io.ktor.features.*
 import org.slf4j.event.*
 import io.ktor.auth.*
+import io.ktor.auth.jwt.*
 import io.ktor.gson.*
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.Koin.Feature
@@ -23,21 +27,37 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module() {
+    val jwtSecret = environment.config.property("jwt.secret").getString()
+    val jwtIssuer = environment.config.property("jwt.issuer").getString()
+    val jwtAudience = environment.config.property("jwt.audience").getString()
+    val jwtRealm = environment.config.property("jwt.realm").getString()
+
+    val userService: UserService by inject()
+
 
     install(Koin){
         modules(mainModule)
     }
 
-    install(CallLogging) {
-        level = Level.INFO
-        filter { call -> call.request.path().startsWith("/") }
-    }
+    install(CallLogging)
 
-    install(DefaultHeaders) {
-        header("X-Engine", "Ktor") // will send this header with each response
-    }
+    install(DefaultHeaders)
 
     install(Authentication) {
+        jwt {
+            realm = jwtRealm
+            verifier(
+                JWT.require(Algorithm.HMAC256(jwtSecret))
+                    .withAudience(jwtAudience)
+                    .withIssuer(jwtIssuer)
+                    .build()
+            )
+            validate { jwtCredential ->
+                val email = jwtCredential.payload.getClaim("email").asString()
+                val currentUser = userService.getUserByEmail(email)
+                currentUser
+            }
+        }
     }
 
     install(ContentNegotiation) {
@@ -48,6 +68,11 @@ fun Application.module() {
 
     install(Routing){
         val shoppingItemService: ShoppingItemService by inject()
+
+        authenticate()
+        createUserRoute(userService)
+        loginUser(userService,jwtAudience,jwtIssuer, jwtSecret)
+
         addNewItemRoute(shoppingItemService)
         getAllItemsRoute(shoppingItemService)
         updateItemRoute(shoppingItemService)
@@ -59,3 +84,5 @@ fun Application.module() {
     }
 }
 
+val JWTPrincipal.userId: String?
+    get() = payload.claims["id"]?.asString()

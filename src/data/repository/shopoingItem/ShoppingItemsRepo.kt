@@ -1,4 +1,4 @@
-package com.omarahmed.data.repository
+package com.omarahmed.data.repository.shopoingItem
 
 import com.omarahmed.data.models.ShoppingItem
 import com.omarahmed.data.requests.UpdateItemRequest
