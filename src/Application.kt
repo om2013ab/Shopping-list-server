@@ -55,7 +55,10 @@ fun Application.module() {
             validate { jwtCredential ->
                 val email = jwtCredential.payload.getClaim("email").asString()
                 val currentUser = userService.getUserByEmail(email)
-                currentUser
+                if (currentUser != null){
+                    JWTPrincipal(jwtCredential.payload)
+                }
+                else null
             }
         }
     }
@@ -73,8 +76,8 @@ fun Application.module() {
         createUserRoute(userService)
         loginUser(userService,jwtAudience,jwtIssuer, jwtSecret)
 
-        addNewItemRoute(shoppingItemService)
-        getAllItemsRoute(shoppingItemService)
+        addNewItemRoute(shoppingItemService, userService)
+        getAllItemsRoute(shoppingItemService, userService)
         updateItemRoute(shoppingItemService)
         deleteItemRoute(shoppingItemService)
         searchForItemRoute(shoppingItemService)
@@ -84,5 +87,5 @@ fun Application.module() {
     }
 }
 
-val JWTPrincipal.userId: String?
-    get() = payload.claims["id"]?.asString()
+val JWTPrincipal.email: String?
+    get() = payload.claims["email"]?.asString()

@@ -6,4 +6,4 @@
 *.ipr
 *.iws
 
-/resources/application.conf
+/src/main/resources/application.conf

@@ -8,7 +8,8 @@ interface ShoppingItemsRepo {
 
     suspend fun addNewItem(item: ShoppingItem): Boolean
 
-    suspend fun getItems(
+    suspend fun getItemsByUserId(
+        userId: String,
         page: Int = 0,
         pageSize: Int = Constants.DEFAULT_PAGE_SIZE
     ): List<ShoppingItem>

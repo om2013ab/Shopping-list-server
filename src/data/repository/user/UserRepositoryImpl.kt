@@ -25,7 +25,11 @@ class UserRepositoryImpl(
         return user?.password == passwordToCheck
     }
 
-//    override suspend fun updateUserToken(id: String, token: String): Boolean {
+    override suspend fun doesEmailBelongToUserId(email: String, userId: String): Boolean {
+        return users.findOneById(userId)?.email == email
+    }
+
+    //    override suspend fun updateUserToken(id: String, token: String): Boolean {
 //        return users.updateOne(
 //            User::id eq id,
 //            setValue(User::token, token)
