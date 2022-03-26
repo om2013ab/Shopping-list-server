@@ -2,8 +2,6 @@ package com.omarahmed.services
 
 import com.omarahmed.data.models.ShoppingItem
 import com.omarahmed.data.repository.shopoingItem.ShoppingItemsRepo
-import com.omarahmed.data.repository.user.UserRepository
-import com.omarahmed.data.requests.AddItemRequest
 import com.omarahmed.data.requests.UpdateItemRequest
 
 class ShoppingItemService(
@@ -13,13 +11,13 @@ class ShoppingItemService(
     suspend fun addNewItem(
         userId: String,
         itemName: String,
-        itemImageUrl: String?
+        itemIconUrl: String?
     ): Boolean {
         return shoppingItemsRepo.addNewItem(
             ShoppingItem(
                 userId = userId,
                 name = itemName,
-                imageUrl = itemImageUrl
+                imageUrl = itemIconUrl
             )
         )
     }

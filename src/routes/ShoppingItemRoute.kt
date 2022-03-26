@@ -1,8 +1,5 @@
 package com.omarahmed.routes
 
-import com.google.gson.Gson
-import com.omarahmed.data.models.ShoppingItem
-import com.omarahmed.data.models.User
 import com.omarahmed.data.requests.AddItemRequest
 import com.omarahmed.data.requests.UpdateItemRequest
 import com.omarahmed.data.responses.SimpleResponse
@@ -10,27 +7,18 @@ import com.omarahmed.email
 import com.omarahmed.services.ShoppingItemService
 import com.omarahmed.services.UserService
 import com.omarahmed.util.Constants
-import com.omarahmed.util.Constants.BASE_URL
-import com.omarahmed.util.Constants.ITEMS_PICTURE_PATH
 import com.omarahmed.util.QueryParams
-import com.omarahmed.util.saveFile
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
-import io.ktor.http.*
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
-import io.ktor.http.HttpStatusCode.Companion.NoContent
 import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.http.HttpStatusCode.Companion.Unauthorized
-import io.ktor.http.content.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import org.koin.ktor.ext.inject
-import java.io.File
-import java.util.*
 
 fun Routing.addNewItemRoute(
     shoppingItemService: ShoppingItemService,
@@ -38,52 +26,73 @@ fun Routing.addNewItemRoute(
 ) {
     authenticate {
         post("/api/items/new_item") {
-            val multiPart = call.receiveMultipart()
-            var itemName: String? = null
-            var fileName: String? = null
-
-            multiPart.forEachPart { partData ->
-                when (partData) {
-                    is PartData.FormItem -> {
-                        itemName = partData.value
-                    }
-                    is PartData.FileItem -> {
-                        val fileBytes = partData.streamProvider().readBytes()
-                        val fileExtension = partData.originalFileName?.takeLastWhile { it != '.' }
-                        fileName = "${UUID.randomUUID()}.$fileExtension"
-                        val folder = File(ITEMS_PICTURE_PATH)
-                        folder.mkdir()
-                        File("$ITEMS_PICTURE_PATH$fileName").writeBytes(fileBytes)
-                    }
-                    else -> Unit
-                }
-                partData.dispose
-            }
-
-            itemName?.let {
-                val itemImageUrl = "${BASE_URL}items_pictures/$fileName"
-                val email = call.principal<JWTPrincipal>()?.email ?: ""
-                val userId = userService.getUserByEmail(email)?.id ?: ""
-                if (userService.doesEmailBelongToUserId(email, userId)) {
-                    val addedItemAcknowledge = shoppingItemService.addNewItem(
-                        userId = userId,
-                        itemName = it,
-                        itemImageUrl = itemImageUrl
-                    )
-                    if (addedItemAcknowledge) {
-                        call.respond(OK, SimpleResponse<Unit>(true, "Successfully added new item!"))
-                    } else {
-                        File("$ITEMS_PICTURE_PATH$fileName").delete()
-                        call.respond(InternalServerError)
-                    }
-                } else {
-                    call.respond(Unauthorized, "You are not who are")
-                }
-
-            } ?: kotlin.run {
+            val request = call.receiveOrNull<AddItemRequest>() ?: kotlin.run {
                 call.respond(BadRequest)
                 return@post
             }
+            val email = call.principal<JWTPrincipal>()?.email ?: ""
+            val userId = userService.getUserByEmail(email)?.id ?: ""
+            if (userService.doesEmailBelongToUserId(email,userId)){
+                val addItemAcknowledge = shoppingItemService.addNewItem(
+                    userId = userId,
+                    itemName = request.itemName,
+                    itemIconUrl = request.itemIconUrl
+                )
+                if (addItemAcknowledge){
+                    call.respond(OK,SimpleResponse<Unit>(true,"Successfully added new item!"))
+                } else {
+                    call.respond(InternalServerError)
+                }
+            } else {
+                call.respond(Unauthorized, "You are not who are")
+            }
+
+//            val multiPart = call.receiveMultipart()
+//            var itemName: String? = null
+//            var fileName: String? = null
+//
+//            multiPart.forEachPart { partData ->
+//                when (partData) {
+//                    is PartData.FormItem -> {
+//                        itemName = partData.value
+//                    }
+//                    is PartData.FileItem -> {
+//                        val fileBytes = partData.streamProvider().readBytes()
+//                        val fileExtension = partData.originalFileName?.takeLastWhile { it != '.' }
+//                        fileName = "${UUID.randomUUID()}.$fileExtension"
+//                        val folder = File(ITEMS_PICTURE_PATH)
+//                        folder.mkdir()
+//                        File("$ITEMS_PICTURE_PATH$fileName").writeBytes(fileBytes)
+//                    }
+//                    else -> Unit
+//                }
+//                partData.dispose
+//            }
+//
+//            itemName?.let {
+//                val itemImageUrl = "${BASE_URL}items_pictures/$fileName"
+//                val email = call.principal<JWTPrincipal>()?.email ?: ""
+//                val userId = userService.getUserByEmail(email)?.id ?: ""
+//                if (userService.doesEmailBelongToUserId(email, userId)) {
+//                    val addedItemAcknowledge = shoppingItemService.addNewItem(
+//                        userId = userId,
+//                        itemName = it,
+//                        itemImageUrl = itemImageUrl
+//                    )
+//                    if (addedItemAcknowledge) {
+//                        call.respond(OK, SimpleResponse<Unit>(true, "Successfully added new item!"))
+//                    } else {
+//                        File("$ITEMS_PICTURE_PATH$fileName").delete()
+//                        call.respond(InternalServerError)
+//                    }
+//                } else {
+//                    call.respond(Unauthorized, "You are not who are")
+//                }
+//
+//            } ?: kotlin.run {
+//                call.respond(BadRequest)
+//                return@post
+//            }
         }
     }
 
