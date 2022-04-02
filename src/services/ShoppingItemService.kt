@@ -37,6 +37,10 @@ class ShoppingItemService(
         return shoppingItemsRepo.updateItem(itemId,request)
     }
 
+    suspend fun updateAllItem(ids: List<String>): Boolean {
+        return shoppingItemsRepo.updateAllItems(ids)
+    }
+
     suspend fun deleteItem(itemId: String): Boolean {
         return shoppingItemsRepo.deleteItem(itemId)
     }

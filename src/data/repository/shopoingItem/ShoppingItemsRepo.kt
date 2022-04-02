@@ -19,6 +19,8 @@ interface ShoppingItemsRepo {
         updateItemRequest: UpdateItemRequest
     ): Boolean
 
+    suspend fun updateAllItems(ids: List<String>): Boolean
+
     suspend fun deleteItem(itemId: String): Boolean
 
     suspend fun searchForItem(query: String): List<ShoppingItem>

@@ -1,6 +1,7 @@
 package com.omarahmed.routes
 
 import com.omarahmed.data.requests.AddItemRequest
+import com.omarahmed.data.requests.UpdateAllItemsRequest
 import com.omarahmed.data.requests.UpdateItemRequest
 import com.omarahmed.data.responses.SimpleResponse
 import com.omarahmed.email
@@ -32,14 +33,14 @@ fun Routing.addNewItemRoute(
             }
             val email = call.principal<JWTPrincipal>()?.email ?: ""
             val userId = userService.getUserByEmail(email)?.id ?: ""
-            if (userService.doesEmailBelongToUserId(email,userId)){
+            if (userService.doesEmailBelongToUserId(email, userId)) {
                 val addItemAcknowledge = shoppingItemService.addNewItem(
                     userId = userId,
                     itemName = request.itemName,
                     itemIconUrl = request.itemIconUrl
                 )
-                if (addItemAcknowledge){
-                    call.respond(OK,SimpleResponse<Unit>(true,"Successfully added new item!"))
+                if (addItemAcknowledge) {
+                    call.respond(OK, SimpleResponse<Unit>(true, "Successfully added new item!"))
                 } else {
                     call.respond(InternalServerError)
                 }
@@ -108,7 +109,7 @@ fun Route.getAllItemsRoute(
             val pageSize = call.parameters[QueryParams.PARAM_PAGE_SIZE]?.toInt() ?: Constants.DEFAULT_PAGE_SIZE
             val email = call.principal<JWTPrincipal>()?.email ?: ""
             val userId = userService.getUserByEmail(email)?.id ?: ""
-            val items = shoppingItemService.getItemsByUserId(userId,page, pageSize)
+            val items = shoppingItemService.getItemsByUserId(userId, page, pageSize)
             call.respond(OK, items)
         }
     }
@@ -132,8 +133,25 @@ fun Route.updateItemRoute(shoppingItemService: ShoppingItemService) {
             }
         }
     }
+}
 
+fun Route.updateAllItemsRoute(shoppingItemService: ShoppingItemService) {
+    authenticate {
+        put("/api/item/updateAll") {
+            val request = call.receiveOrNull<UpdateAllItemsRequest>() ?: kotlin.run {
+                call.respond(BadRequest)
+                return@put
+            }
 
+            val isUpdateAcknowledge = shoppingItemService.updateAllItem(request.ids)
+            if (isUpdateAcknowledge) {
+                call.respond(OK, SimpleResponse<Unit>(true, "Successfully updated all items"))
+            } else {
+                call.respond(InternalServerError)
+            }
+
+        }
+    }
 }
 
 fun Route.deleteItemRoute(shoppingItemService: ShoppingItemService) {

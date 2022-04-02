@@ -79,6 +79,7 @@ fun Application.module() {
         addNewItemRoute(shoppingItemService, userService)
         getAllItemsRoute(shoppingItemService, userService)
         updateItemRoute(shoppingItemService)
+        updateAllItemsRoute(shoppingItemService)
         deleteItemRoute(shoppingItemService)
         searchForItemRoute(shoppingItemService)
         static {

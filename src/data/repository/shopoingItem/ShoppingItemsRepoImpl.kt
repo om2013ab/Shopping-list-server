@@ -38,6 +38,13 @@ class ShoppingItemsRepoImpl(
         ).wasAcknowledged()
     }
 
+    override suspend fun updateAllItems(ids: List<String>): Boolean {
+        return items.updateMany(
+            ShoppingItem::id `in`  ids,
+            setValue(ShoppingItem::isAddedToCart,false)
+        ).wasAcknowledged()
+    }
+
     override suspend fun deleteItem(itemId: String): Boolean {
         return items.deleteOneById(itemId).wasAcknowledged()
     }
