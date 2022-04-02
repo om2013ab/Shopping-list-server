@@ -49,9 +49,12 @@ class ShoppingItemsRepoImpl(
         return items.deleteOneById(itemId).wasAcknowledged()
     }
 
-    override suspend fun searchForItem(query: String): List<ShoppingItem> {
+    override suspend fun searchForItem(userId: String, query: String): List<ShoppingItem> {
         return items.find(
-            ShoppingItem::name regex Regex("(?i).*$query.*")
+            and(
+                ShoppingItem::userId eq userId,
+                ShoppingItem::name regex Regex("(?i).*$query.*")
+            )
         )
             .descendingSort(ShoppingItem::name)
             .toList()

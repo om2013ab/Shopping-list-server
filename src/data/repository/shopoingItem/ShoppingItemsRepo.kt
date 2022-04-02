@@ -23,5 +23,5 @@ interface ShoppingItemsRepo {
 
     suspend fun deleteItem(itemId: String): Boolean
 
-    suspend fun searchForItem(query: String): List<ShoppingItem>
+    suspend fun searchForItem(userId: String,query: String): List<ShoppingItem>
 }

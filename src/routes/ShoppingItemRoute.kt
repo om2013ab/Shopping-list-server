@@ -171,12 +171,17 @@ fun Route.deleteItemRoute(shoppingItemService: ShoppingItemService) {
     }
 }
 
-fun Route.searchForItemRoute(shoppingItemService: ShoppingItemService) {
+fun Route.searchForItemRoute(
+    shoppingItemService: ShoppingItemService,
+    userService: UserService
+) {
     authenticate {
         get("/api/items/search") {
             val query = call.parameters[QueryParams.PARAM_SEARCH_QUERY]
+            val email = call.principal<JWTPrincipal>()?.email ?: ""
+            val userId = userService.getUserByEmail(email)?.id ?: ""
             query?.let {
-                val searchResult = shoppingItemService.searchForItem(it)
+                val searchResult = shoppingItemService.searchForItem(userId,it)
                 call.respond(OK, searchResult)
             }
 

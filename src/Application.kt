@@ -81,7 +81,7 @@ fun Application.module() {
         updateItemRoute(shoppingItemService)
         updateAllItemsRoute(shoppingItemService)
         deleteItemRoute(shoppingItemService)
-        searchForItemRoute(shoppingItemService)
+        searchForItemRoute(shoppingItemService, userService)
         static {
             resources("static")
         }
