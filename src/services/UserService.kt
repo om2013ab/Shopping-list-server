@@ -5,6 +5,7 @@ import com.omarahmed.data.repository.user.UserRepository
 import com.omarahmed.data.requests.CreateAccountRequest
 import com.omarahmed.data.requests.LoginRequest
 import com.omarahmed.data.requests.UpdateUserRequest
+import com.omarahmed.util.hashPassword
 
 class UserService(
     private val userRepository: UserRepository
@@ -14,7 +15,7 @@ class UserService(
             User(
                 name = request.name,
                 email = request.email,
-                password = request.password
+                password = hashPassword(request.password)
             )
         )
     }

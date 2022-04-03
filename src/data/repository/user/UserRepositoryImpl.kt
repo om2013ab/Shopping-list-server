@@ -2,6 +2,7 @@ package com.omarahmed.data.repository.user
 
 import com.omarahmed.data.models.User
 import com.omarahmed.data.requests.UpdateUserRequest
+import com.omarahmed.util.hashPassword
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
 import org.litote.kmongo.setValue
@@ -22,7 +23,7 @@ class UserRepositoryImpl(
 
     override suspend fun doesPasswordAndEmailMatch(email: String, passwordToCheck: String): Boolean {
         val user = getUserByEmail(email)
-        return user?.password == passwordToCheck
+        return user?.password == hashPassword(passwordToCheck)
     }
 
     override suspend fun doesEmailBelongToUserId(email: String, userId: String): Boolean {
